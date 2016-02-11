@@ -65,7 +65,7 @@ public class WeatherDB {
 				Province province = new Province();
 				province.setId(cursor.getInt(cursor.getColumnIndex("id")));
 				province.setProvinceName(cursor.getString(cursor.getColumnIndex("province_name")));
-				province.setProvinceName(cursor.getString(cursor.getColumnIndex("province_code")));
+				province.setProvinceCode(cursor.getString(cursor.getColumnIndex("province_code")));
 				list.add(province);
 			}while(cursor.moveToNext());
 		}
@@ -82,7 +82,7 @@ public class WeatherDB {
 		if(city != null){
 			ContentValues values = new ContentValues();
 			values.put("city_name", city.getCityName());
-			values.put("city_code", city.getCityName());
+			values.put("city_code", city.getCityCode());
 			values.put("province_id", city.getProvinceId());
 			db.insert("City", null, values);
 		}
@@ -116,9 +116,9 @@ public class WeatherDB {
 	public void saveCounty(County county){
 		if(county != null){
 			ContentValues values = new ContentValues();
-			values.put("city_name", county.getCountyName());
-			values.put("city_code", county.getCountyName());
-			values.put("province_id", county.getCityId());
+			values.put("county_name", county.getCountyName());
+			values.put("county_code", county.getCountyCode());
+			values.put("city_id", county.getCityId());
 			db.insert("county", null, values);
 		}
 	}
@@ -143,22 +143,5 @@ public class WeatherDB {
 			cursor.close();
 		}
 		return list;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	}	
 }
