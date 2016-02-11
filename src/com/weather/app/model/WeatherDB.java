@@ -98,9 +98,10 @@ public class WeatherDB {
 		if(cursor.moveToFirst()){
 			do{
 				City city = new City();
+				city.setId(cursor.getInt(cursor.getColumnIndex("id")));
 				city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
 				city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
-				city.setProvinceId(cursor.getInt(cursor.getColumnIndex("province_id")));
+				city.setProvinceId(provinceId);
 				list.add(city);
 			}while(cursor.moveToNext());
 		}
@@ -133,9 +134,10 @@ public class WeatherDB {
 		if(cursor.moveToFirst()){
 			do{
 				County county = new County();
+				county.setId(cursor.getInt(cursor.getColumnIndex("id")));
 				county.setCountyName(cursor.getString(cursor.getColumnIndex("county_name")));
 				county.setCountyCode(cursor.getString(cursor.getColumnIndex("county_code")));
-				county.setCityId(cursor.getInt(cursor.getColumnIndex("city_id")));
+				county.setCityId(cityId);
 				list.add(county);
 			}while(cursor.moveToNext());
 		}

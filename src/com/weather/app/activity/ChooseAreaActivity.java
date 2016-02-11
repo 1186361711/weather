@@ -133,7 +133,7 @@ public class ChooseAreaActivity extends Activity {
 
 	/**
 	 * 从服务器上查询省市县的信息
-	 * @param code 省或县对应的编码
+	 * @param code 省或市对应的编码
 	 * @param type 查询类型
 	 */
 	private void quaryFromServer(final String code, final String type) {
