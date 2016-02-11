@@ -74,7 +74,9 @@ public class ChooseAreaActivity extends Activity {
 		quaryProvince();
 	}
 
-
+	/**
+	 * 查询全国所有的省，优先从数据库中查询，若没有再到服务器上查询
+	 */
 	private void quaryProvince() {
 		provinceList = weatherDB.loadProvince();
 		if(provinceList.size() > 0){
@@ -91,6 +93,9 @@ public class ChooseAreaActivity extends Activity {
 		}
 	}
 	
+	/**
+	 * 查询所选省所有的市，优先从数据库中查询，若没有再到服务器上查询
+	 */
 	private void quaryCity() {
 		cityList = weatherDB.loadCity(selectedProvince.getId());
 		if(cityList.size() > 0){
@@ -107,6 +112,9 @@ public class ChooseAreaActivity extends Activity {
 		}
 	}
 	
+	/**
+	 * 查询所选市所有的县，优先从数据库中查询，若没有再到服务器上查询
+	 */
 	private void quaryCounty() {
 		countyList = weatherDB.loadCounty(selectedCity.getId());
 		if(countyList.size() > 0){
@@ -123,7 +131,11 @@ public class ChooseAreaActivity extends Activity {
 		}
 	}
 
-	
+	/**
+	 * 从服务器上查询省市县的信息
+	 * @param code 省或县对应的编码
+	 * @param type 查询类型
+	 */
 	private void quaryFromServer(final String code, final String type) {
 		
 		String address;
@@ -176,6 +188,9 @@ public class ChooseAreaActivity extends Activity {
 		});
 	}
 	
+	/**
+	 * 显示进度对话框
+	 */
 	private void showProgressDialog(){
 		if(progressDialog == null){
 			progressDialog = new ProgressDialog(this);
@@ -185,12 +200,18 @@ public class ChooseAreaActivity extends Activity {
 		progressDialog.show();
 	}
 	
+	/**
+	 * 取消进度对话框
+	 */
 	private void closeProgressDialog(){
 		if(progressDialog != null){
 			progressDialog.dismiss();
 		}
 	}
 	
+	/**
+	 * 捕获back按键，根据当前级别来判断该返回省或市列表或者是直接退出
+	 */
 	@Override
 	public void onBackPressed(){
 		if(currentLevel == LEVEL_COUNTY){
