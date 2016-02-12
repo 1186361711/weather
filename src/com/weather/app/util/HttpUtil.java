@@ -21,8 +21,8 @@ public class HttpUtil {
 					connection = (HttpURLConnection) url.openConnection();
 					Log.d("HttpUtil","success");
 					connection.setRequestMethod("GET");
-					connection.setConnectTimeout(8000);
-					connection.setReadTimeout(8000);
+					connection.setConnectTimeout(80000);
+					connection.setReadTimeout(80000);
 					/*connection.setDoInput(true);
 					connection.setDoOutput(true);*/
 					InputStream in = connection.getInputStream();
