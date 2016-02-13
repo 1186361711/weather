@@ -47,7 +47,9 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		switchCity = (Button) findViewById(R.id.switch_city);
 		refreshWeather = (Button) findViewById(R.id.refresh_weather);
 		String countyCode = getIntent().getStringExtra("county_code");
+		Log.d("WeatherActivity","from_intent"+countyCode);
 		if(!TextUtils.isEmpty(countyCode)){
+			publishTimeText.setVisibility(View.VISIBLE);
 			publishTimeText.setText("同步中...");
 			weatherInfoLayout.setVisibility(View.INVISIBLE);
 			cityNameText.setVisibility(View.INVISIBLE);
@@ -71,6 +73,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			finish();
 			break;
 		case R.id.refresh_weather:
+			publishTimeText.setVisibility(View.VISIBLE);
 			publishTimeText.setText("同步中...");
 			SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
 			String weatherCode = p.getString("weather_code", "");
@@ -90,7 +93,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	 */
 	private void queryWeatherCode(String countyCode) {
 		String address = "http://www.weather.com.cn/data/list3/city"+ countyCode +".xml";
-		queryFromServer(address, "countyCode");
+		queryFromServer(address, "countyCode", null);
 	}
 	
 	/**
@@ -98,8 +101,9 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	 * @param weatherCode
 	 */
 	private void queryWeatherInfo(String weatherCode) {
-		String address = "http://www.weather.com.cn/data/cityinfo/"+ weatherCode +".html";
-		queryFromServer(address, "weatherCode");
+//		String address = "http://www.weather.com.cn/data/cityinfo/"+ weatherCode +".html";
+		String address = " http://wthrcdn.etouch.cn/weather_mini?citykey=" + weatherCode;
+		queryFromServer(address, "weatherCode", weatherCode);
 	}
 
 	/**
@@ -107,9 +111,9 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	 * @param address 
 	 * @param type 
 	 */
-	private void queryFromServer(final String address, final String type) {
+	private void queryFromServer(final String address, final String type, final String weatherCode) {
+		Log.d("WeatherAvtivity","queryFromServer"+address);
 		HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
-			
 			@Override
 			public void onFinish(final String response) {
 				if("countyCode".equals(type)){
@@ -117,13 +121,13 @@ public class WeatherActivity extends Activity implements OnClickListener{
 					if(!TextUtils.isEmpty(response)){
 						String[] s = response.split("\\|");
 						if(s != null && s.length == 2){
-							String weatherCode = s[1];
-							queryWeatherInfo(weatherCode);
+							String weatherCode1 = s[1];
+							queryWeatherInfo(weatherCode1);
 						}
 					}
 				}else if("weatherCode".equals(type)){
-					Log.d("WeatherActivity","weather"+response);
-					Utility.handleWeatherResponse(WeatherActivity.this, response);
+					//Log.d("WeatherActivity","weather"+response);
+					Utility.handleWeatherResponse(WeatherActivity.this, response, weatherCode);
 					runOnUiThread(new Runnable(){
 						@Override
 						public void run(){
@@ -139,6 +143,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 				runOnUiThread(new Runnable(){
 					@Override
 					public void run(){
+						publishTimeText.setVisibility(View.VISIBLE);
 						publishTimeText.setText("同步失败");
 					}
 				});
@@ -152,7 +157,8 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private void showWeather() {
 		SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
 		cityNameText.setText(p.getString("city_name", ""));
-		publishTimeText.setText("今天"+p.getString("publish_time", "")+"发布");
+		publishTimeText.setVisibility(View.INVISIBLE);
+		//publishTimeText.setText("今天"/*+p.getString("publish_time", "")*/+"---"+"发布");
 		currentDateText.setText(p.getString("current_date", ""));
 		weatherDespText.setText(p.getString("weather_desp", ""));
 		temp1Text.setText(p.getString("temp1", ""));
