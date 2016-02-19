@@ -1,6 +1,10 @@
 package com.weather.app.activity;
 
+import java.util.ArrayList;
+
 import com.weather.app.R;
+import com.weather.app.UI.WeatherPagerAdapter;
+import com.weather.app.UI.WrapContentHeightViewPager;
 import com.weather.app.service.AutoUpdateService;
 import com.weather.app.util.HttpCallbackListener;
 import com.weather.app.util.HttpUtil;
@@ -11,18 +15,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class WeatherActivity extends Activity implements OnClickListener{
 
-	private LinearLayout weatherInfoLayout;
+	//private LinearLayout weatherInfoLayout;
 	private TextView cityNameText;
 	private TextView publishTimeText;
 	private TextView currentDateText;
@@ -31,27 +39,55 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private TextView temp2Text;
 	private Button switchCity;
 	private Button refreshWeather;
+	//private ViewPager weatherInfoPager;
+	private ArrayList<View> pagerViewList;
+	private WeatherPagerAdapter adapter;
+	private WrapContentHeightViewPager weatherInfoPager;
+	private View currentView;  //ViewPager中的当前页
+	private int currentIndex;  //当前页在List中对应的角标
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_layout);
-		weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
+		weatherInfoPager = (WrapContentHeightViewPager) findViewById(R.id.weather_view_pager);
+		LayoutInflater inflater = getLayoutInflater();
+		View View1 = inflater.inflate(R.layout.single_day_layout, null);
+		View View2 = inflater.inflate(R.layout.single_day_layout, null);
+		View View3 = inflater.inflate(R.layout.single_day_layout, null);
+		View View4 = inflater.inflate(R.layout.single_day_layout, null);
+		View View5 = inflater.inflate(R.layout.single_day_layout, null);
+		
+		pagerViewList = new ArrayList<View>();
+		pagerViewList.add(View1);
+		pagerViewList.add(View2);
+		pagerViewList.add(View3);
+		pagerViewList.add(View4);
+		pagerViewList.add(View5);
+		
+		adapter = new WeatherPagerAdapter(pagerViewList);
+		weatherInfoPager.setAdapter(adapter);
 		cityNameText = (TextView) findViewById(R.id.city_name);
 		publishTimeText = (TextView) findViewById(R.id.publish_text);
-		currentDateText = (TextView) findViewById(R.id.current_date);
-		weatherDespText = (TextView) findViewById(R.id.weather_desp);
-		temp1Text = (TextView) findViewById(R.id.temp1);
-		temp2Text = (TextView) findViewById(R.id.temp2);
-		switchCity = (Button) findViewById(R.id.switch_city);
+		
+		currentIndex = weatherInfoPager.getCurrentItem();
+		currentView = pagerViewList.get(currentIndex);
+		currentDateText = (TextView) currentView.findViewById(R.id.current_date);
+		temp1Text = (TextView) currentView.findViewById(R.id.temp1);
+		temp2Text = (TextView) currentView.findViewById(R.id.temp2);
+		weatherDespText = (TextView) currentView.findViewById(R.id.weather_desp);
+		
 		refreshWeather = (Button) findViewById(R.id.refresh_weather);
+		switchCity = (Button) findViewById(R.id.switch_city);
+		
 		String countyCode = getIntent().getStringExtra("county_code");
 		Log.d("WeatherActivity","from_intent"+countyCode);
 		if(!TextUtils.isEmpty(countyCode)){
 			publishTimeText.setVisibility(View.VISIBLE);
 			publishTimeText.setText("同步中...");
-			weatherInfoLayout.setVisibility(View.INVISIBLE);
+			weatherInfoPager.setVisibility(View.INVISIBLE);
 			cityNameText.setVisibility(View.INVISIBLE);
 			queryWeatherCode(countyCode);
 		}else{
@@ -60,6 +96,28 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		
 		switchCity.setOnClickListener(this);
 		refreshWeather.setOnClickListener(this);
+		weatherInfoPager.addOnPageChangeListener(new OnPageChangeListener() {
+			
+			@Override
+			public void onPageSelected(int position) {
+				currentIndex = position;
+				currentView = pagerViewList.get(position);
+				currentDateText = (TextView) currentView.findViewById(R.id.current_date);
+				temp1Text = (TextView) currentView.findViewById(R.id.temp1);
+				temp2Text = (TextView) currentView.findViewById(R.id.temp2);
+				weatherDespText = (TextView) currentView.findViewById(R.id.weather_desp);
+				showWeather();
+			}
+			
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+				
+			}
+			
+			@Override
+			public void onPageScrollStateChanged(int state) {
+			}
+		});
 		
 	}
 	
@@ -155,19 +213,42 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	 * 从SharedPreferrences文件中读出天气信息并显示在界面上。
 	 */
 	private void showWeather() {
+		Log.d("WeatherAvtivity","currentIndex:"+currentIndex);
 		SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
+		adapter.notifyDataSetChanged();
 		cityNameText.setText(p.getString("city_name", ""));
 		publishTimeText.setVisibility(View.INVISIBLE);
 		//publishTimeText.setText("今天"/*+p.getString("publish_time", "")*/+"---"+"发布");
-		currentDateText.setText(p.getString("current_date", ""));
-		weatherDespText.setText(p.getString("weather_desp", ""));
-		temp1Text.setText(p.getString("temp1", ""));
-		temp2Text.setText(p.getString("temp2", ""));
-		weatherInfoLayout.setVisibility(View.VISIBLE);
+		currentDateText.setText(p.getString("current_date_"+currentIndex, ""));
+		weatherDespText.setText(p.getString("weather_desp_"+currentIndex, ""));
+		temp1Text.setText(p.getString("temp1_"+currentIndex, ""));
+		temp2Text.setText(p.getString("temp2_"+currentIndex, ""));
+		weatherInfoPager.setVisibility(View.VISIBLE);
 		cityNameText.setVisibility(View.VISIBLE);
-		Intent intent = new Intent(this, AutoUpdateService.class);
-		startService(intent);
+		boolean autoUpdateFlag = p.getBoolean("update_weather_switch", true);
+		if(autoUpdateFlag){
+			Intent intent = new Intent(this, AutoUpdateService.class);
+			startService(intent);
+		}
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu){
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch (item.getItemId()){
+		case R.id.auto_update_weather:
+			Intent intent = new Intent(this,Setting.class);
+			startActivity(intent);
+			break;
+		default:
+			break;
+		}
+		return true;
+	}
 }
 

@@ -19,7 +19,7 @@ public class HttpUtil {
 					URL url = new URL(address);
 					Log.d("HttpUtil",address);
 					connection = (HttpURLConnection) url.openConnection();
-					Log.d("HttpUtil","success");
+					//Log.d("HttpUtil","success");
 					connection.setRequestMethod("GET");
 					connection.setConnectTimeout(80000);
 					connection.setReadTimeout(80000);
@@ -32,13 +32,13 @@ public class HttpUtil {
 					while((line = reader.readLine())!=null){
 						response.append(line);
 					}
-					Log.d("HttpUtil","**"+response.toString()+" **");
+					Log.d("HttpUtil",response.toString());
 					if(listener != null){
 						listener.onFinish(response.toString());
 					}
 				} catch (Exception e) {
 					if(listener != null){
-						listener.onError(e);// TODO: handle exception
+						listener.onError(e);
 					}
 				}finally{
 					if(connection != null){

@@ -25,6 +25,7 @@
         <activity
             android:name="com.weather.app.activity.WeatherActivity" >
         </activity>
+        <activity android:name="com.weather.app.activity.Setting"></activity>
         <service android:name="com.weather.app.service.AutoUpdateService"></service>
         <receiver android:name="com.weather.app.receiver.AutoUpdateReceiver"></receiver>
     </application>
